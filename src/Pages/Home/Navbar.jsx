@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router";
 import { FaPaw, FaTachometerAlt, FaSignOutAlt, FaBars, FaTimes } from "react-icons/fa";
-import { Button } from "../../components/ui/button"; // আপনার Button কম্পোনেন্ট
+import { Button } from "../../components/ui/button"; 
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
