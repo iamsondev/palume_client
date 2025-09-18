@@ -1,0 +1,120 @@
+import React from "react";
+import { useForm } from "react-hook-form";
+
+const Register = () => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data) => {
+    console.log("Form Data:", data);
+  };
+
+  const password = watch("password", "");
+
+  return (
+    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-blue-50 via-white to-pink-50">
+      {/* Form Section */}
+      <div className="flex-1 flex flex-col justify-center items-center p-6">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-10 border border-gray-200">
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* Full Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Full Name</label>
+              <input
+                type="text"
+                {...register("fullName", { required: "Full name is required" })}
+                placeholder="John Doe"
+                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 outline-none transition"
+              />
+              {errors.fullName && (
+                <p className="text-sm text-red-500 mt-1">{errors.fullName.message}</p>
+              )}
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <input
+                type="email"
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: { value: /^\S+@\S+$/i, message: "Invalid email address" },
+                })}
+                placeholder="example@mail.com"
+                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 outline-none transition"
+              />
+              {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <input
+                type="password"
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: { value: 6, message: "Password must be at least 6 characters" },
+                })}
+                placeholder="Enter password"
+                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 outline-none transition"
+              />
+              {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>}
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+              <input
+                type="password"
+                {...register("confirmPassword", {
+                  required: "Please confirm your password",
+                  validate: (value) => value === password || "Passwords do not match",
+                })}
+                placeholder="Confirm password"
+                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 outline-none transition"
+              />
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-500 mt-1">{errors.confirmPassword.message}</p>
+              )}
+            </div>
+
+            {/* User Image */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Profile Image</label>
+              <input
+                type="file"
+                accept="image/*"
+                {...register("image", { required: "Profile image is required" })}
+                className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-pink-500 file:text-white hover:file:bg-pink-600 transition"
+              />
+              {errors.image && <p className="text-sm text-red-500 mt-1">{errors.image.message}</p>}
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              className="w-full py-3 mt-3 text-white font-bold rounded-2xl bg-gradient-to-r from-pink-500 to-yellow-400 hover:scale-105 transition-transform duration-300"
+            >
+              Register
+            </button>
+          </form>
+
+          {/* Footer */}
+          <p className="text-sm text-gray-500 text-center mt-6">
+            Already have an account?{" "}
+            <a href="/login" className="text-pink-600 hover:underline font-medium">
+              Login
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Register;
