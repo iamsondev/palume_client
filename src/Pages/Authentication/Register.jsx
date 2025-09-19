@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router"; // ✅ import useNavigate
+import { useNavigate } from "react-router"; 
 import useAuth from "../../Hook/useAuth";
 import GoogleLogin from "./SocialLogin/GoogleLogin";
 import GithubLogin from "./SocialLogin/GithubLogin";
 
 const Register = () => {
-  const navigate = useNavigate(); // ✅ initialize navigate
+  const navigate = useNavigate(); 
+  const [selectedImage, setSelectedImage] = useState(null); // ✅ Image state
 
   const {
     register,
@@ -17,12 +18,22 @@ const Register = () => {
 
   const { createUser } = useAuth();
 
+  // ✅ Handle Image Upload Function
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      console.log("Selected Image:", file);
+    }
+  };
+
   const onSubmit = (data) => {
     console.log("Form Data:", data);
+    console.log("Selected Image File:", selectedImage); // ✅ এখানে image data পাবেন
+
     createUser(data.email, data.password)
       .then((result) => {
         console.log(result.user);
-        // ✅ Navigate to home page after successful registration
         navigate("/"); 
       })
       .catch((error) => {
@@ -79,6 +90,25 @@ const Register = () => {
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 outline-none transition"
               />
               {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>}
+            </div>
+
+            {/* ✅ Profile Image */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Profile Image</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload} // ✅ Custom handler
+                className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-pink-500 file:text-white hover:file:bg-pink-600 transition"
+              />
+              {/* Preview (optional) */}
+              {selectedImage && (
+                <img
+                  src={URL.createObjectURL(selectedImage)}
+                  alt="Preview"
+                  className="mt-3 w-20 h-20 object-cover rounded-full border"
+                />
+              )}
             </div>
 
             {/* Submit */}

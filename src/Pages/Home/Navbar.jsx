@@ -1,15 +1,18 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router"; 
 import { FaUserCircle } from "react-icons/fa";
+import useAuth from "../../Hook/useAuth"; 
 
 const Navbar = () => {
-  // Simulate user authentication
-  const [user, setUser] = useState(null); // null = not logged in, {name, image} = logged in
+  const { user, LogOut } = useAuth(); 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = () => {
-    setUser(null);
-    setDropdownOpen(false);
+    LogOut()
+      .then(() => {
+        setDropdownOpen(false);
+      })
+      .catch((err) => console.error(err));
   };
 
   return (
@@ -39,9 +42,9 @@ const Navbar = () => {
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="flex items-center focus:outline-none"
             >
-              {user.image ? (
+              {user.photoURL ? (
                 <img
-                  src={user.image}
+                  src={user.photoURL}
                   alt="Profile"
                   className="w-10 h-10 rounded-full object-cover border-2 border-pink-500"
                 />
@@ -50,8 +53,13 @@ const Navbar = () => {
               )}
             </button>
 
+            {/* Dropdown Menu */}
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-xl border border-gray-200 py-2 z-50">
+              <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-xl border border-gray-200 py-2 z-50">
+                <p className="px-4 py-2 text-sm text-gray-700 font-medium">
+                  {user.displayName || "User"}
+                </p>
+                <hr />
                 <Link
                   to="/dashboard"
                   className="block px-4 py-2 hover:bg-pink-50 text-gray-700"
@@ -70,7 +78,7 @@ const Navbar = () => {
           </div>
         ) : (
           // Not logged in - Show Login/Register
-          <>
+          <div className="flex gap-2">
             <Link
               to="/login"
               className="px-4 py-2 rounded-lg border border-pink-500 text-pink-500 hover:bg-pink-50 transition"
@@ -83,7 +91,7 @@ const Navbar = () => {
             >
               Register
             </Link>
-          </>
+          </div>
         )}
       </div>
     </nav>
