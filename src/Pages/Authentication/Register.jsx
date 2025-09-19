@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router"; 
+import { useNavigate } from "react-router";
 import useAuth from "../../Hook/useAuth";
 import GoogleLogin from "./SocialLogin/GoogleLogin";
 import GithubLogin from "./SocialLogin/GithubLogin";
+import axios from "axios";
 
 const Register = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(null); // ✅ Image state
 
   const {
@@ -19,13 +20,32 @@ const Register = () => {
   const { createUser } = useAuth();
 
   // ✅ Handle Image Upload Function
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
+    if (!file) return;
+
+    try {
+      // Set local state for preview if needed
       setSelectedImage(file);
       console.log("Selected Image:", file);
+
+      // Create FormData
+      const formData = new FormData();
+      formData.append("image", file); // "image" = backend field name
+
+      // Example: Upload to server
+      const response = await axios.post("/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log("Upload Success:", response.data);
+    } catch (error) {
+      console.error("Upload Error:", error);
     }
   };
+
 
   const onSubmit = (data) => {
     console.log("Form Data:", data);
@@ -34,7 +54,7 @@ const Register = () => {
     createUser(data.email, data.password)
       .then((result) => {
         console.log(result.user);
-        navigate("/"); 
+        navigate("/");
       })
       .catch((error) => {
         console.log(error);
