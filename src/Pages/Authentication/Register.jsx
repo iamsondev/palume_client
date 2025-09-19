@@ -1,5 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import useAuth from "../../Hook/useAuth";
+import GoogleLogin from "./SocialLogin/GoogleLogin";
 
 const Register = () => {
   const {
@@ -9,14 +11,22 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
+  const {createUser} = useAuth();
+
   const onSubmit = (data) => {
     console.log("Form Data:", data);
+    createUser(data.email, data.password)
+    .then(result=> {
+      console.log(result.user)
+    })
+    .catch(error=>{
+      console.log(error)
+    })
   };
 
-  const password = watch("password", "");
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-blue-50 via-white to-pink-50">
+    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br">
       {/* Form Section */}
       <div className="flex-1 flex flex-col justify-center items-center p-6">
         <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-10 border border-gray-200">
@@ -65,26 +75,8 @@ const Register = () => {
               />
               {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>}
             </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-              <input
-                type="password"
-                {...register("confirmPassword", {
-                  required: "Please confirm your password",
-                  validate: (value) => value === password || "Passwords do not match",
-                })}
-                placeholder="Confirm password"
-                className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 outline-none transition"
-              />
-              {errors.confirmPassword && (
-                <p className="text-sm text-red-500 mt-1">{errors.confirmPassword.message}</p>
-              )}
-            </div>
-
             {/* User Image */}
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700">Profile Image</label>
               <input
                 type="file"
@@ -93,7 +85,7 @@ const Register = () => {
                 className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-pink-500 file:text-white hover:file:bg-pink-600 transition"
               />
               {errors.image && <p className="text-sm text-red-500 mt-1">{errors.image.message}</p>}
-            </div>
+            </div> */}
 
             {/* Submit */}
             <button
@@ -103,6 +95,7 @@ const Register = () => {
               Register
             </button>
           </form>
+          <GoogleLogin></GoogleLogin>
 
           {/* Footer */}
           <p className="text-sm text-gray-500 text-center mt-6">
