@@ -34,11 +34,7 @@ const Register = () => {
       formData.append("image", file); // "image" = backend field name
 
       // Example: Upload to server
-      const response = await axios.post("/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(`https://api.imgbb.com/1/upload?expiration=600&key=${import.meta.env.VITE_image_upload_key}`);
 
       console.log("Upload Success:", response.data);
     } catch (error) {
@@ -49,7 +45,7 @@ const Register = () => {
 
   const onSubmit = (data) => {
     console.log("Form Data:", data);
-    console.log("Selected Image File:", selectedImage); // ✅ এখানে image data পাবেন
+    console.log("Selected Image File:", selectedImage); 
 
     createUser(data.email, data.password)
       .then((result) => {
