@@ -1,10 +1,24 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import GoogleLogin from "./SocialLogin/GoogleLogin";
+import GithubLogin from "./SocialLogin/GithubLogin";
+import { useNavigate } from "react-router";
+import useAuth from "../../Hook/useAuth";
 
 const Login = () => {
+  const {signIn} = useAuth();
+  const navigate= useNavigate();
   const {register,handleSubmit, formState:{errors}} = useForm();
   const onSubmit = data => {
     console.log(data);
+    signIn(data.email, data.password)
+    .then(result=>{
+      console.log(result.user)
+      navigate("/");
+    })
+    .catch(error=>{
+      console.error(error)
+    })
   }
   return (
     <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 border border-gray-200">
@@ -61,6 +75,8 @@ const Login = () => {
           Login
         </button>
       </form>
+      <GoogleLogin></GoogleLogin>
+      <GithubLogin></GithubLogin>
 
       {/* Footer */}
       <p className="text-sm text-gray-500 text-center mt-4">

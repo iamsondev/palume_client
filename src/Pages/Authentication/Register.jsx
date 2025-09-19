@@ -1,9 +1,13 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router"; // ✅ import useNavigate
 import useAuth from "../../Hook/useAuth";
 import GoogleLogin from "./SocialLogin/GoogleLogin";
+import GithubLogin from "./SocialLogin/GithubLogin";
 
 const Register = () => {
+  const navigate = useNavigate(); // ✅ initialize navigate
+
   const {
     register,
     handleSubmit,
@@ -11,19 +15,20 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
-  const {createUser} = useAuth();
+  const { createUser } = useAuth();
 
   const onSubmit = (data) => {
     console.log("Form Data:", data);
     createUser(data.email, data.password)
-    .then(result=> {
-      console.log(result.user)
-    })
-    .catch(error=>{
-      console.log(error)
-    })
+      .then((result) => {
+        console.log(result.user);
+        // ✅ Navigate to home page after successful registration
+        navigate("/"); 
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
-
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br">
@@ -75,17 +80,6 @@ const Register = () => {
               />
               {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>}
             </div>
-            {/* User Image */}
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700">Profile Image</label>
-              <input
-                type="file"
-                accept="image/*"
-                {...register("image", { required: "Profile image is required" })}
-                className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-pink-500 file:text-white hover:file:bg-pink-600 transition"
-              />
-              {errors.image && <p className="text-sm text-red-500 mt-1">{errors.image.message}</p>}
-            </div> */}
 
             {/* Submit */}
             <button
@@ -95,7 +89,10 @@ const Register = () => {
               Register
             </button>
           </form>
-          <GoogleLogin></GoogleLogin>
+
+          {/* Social Login */}
+          <GoogleLogin />
+          <GithubLogin />
 
           {/* Footer */}
           <p className="text-sm text-gray-500 text-center mt-6">
