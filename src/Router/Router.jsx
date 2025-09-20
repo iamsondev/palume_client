@@ -5,6 +5,7 @@ import AuthLayout from "../Lauouts/AuthLayout";
 import Login from "../Pages/Authentication/Login";
 import Register from "../Pages/Authentication/Register";
 import PetListing from "../Pages/Home/PetListing/PetListing";
+import PetDetails from "../Pages/Home/PetListing/PetDetails";
 
 
 export const router = createBrowserRouter([
@@ -19,6 +20,10 @@ export const router = createBrowserRouter([
       {
         path:'petList',
         Component:PetListing
+      },
+      {
+        path:'petDetails/:id',
+        Component:PetDetails
       }
     ]
   },

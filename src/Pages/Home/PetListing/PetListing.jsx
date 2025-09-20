@@ -3,6 +3,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import Select from "react-select";
 import useAxiosSecure from "../../../Hook/useAxiosSecure";
+import { Link } from "react-router";
 
 const pageSize = 6;
 
@@ -25,7 +26,7 @@ const PetListing = () => {
       const res = await axiosSecure.get(
         `/pets?search=${search}&category=${category}&page=${pageParam}&limit=${pageSize}`
       );
-      return res.data; 
+      return res.data;
     },
     getNextPageParam: (lastPage) =>
       lastPage?.currentPage < lastPage?.totalPages
@@ -93,9 +94,13 @@ const PetListing = () => {
               <p className="text-gray-400 text-sm mb-4">
                 Added on: {new Date(pet.createdAt).toLocaleDateString()}
               </p>
-              <button className="mt-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-colors">
-                View Details
-              </button>
+              <Link to={`/petDetails/${pet._id}`}>
+                <button className="mt-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-colors">
+                  View Details
+                </button>
+              </Link>
+
+
             </div>
           </div>
         ))}
