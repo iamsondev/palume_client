@@ -4,7 +4,7 @@ import Home from "../Pages/Home/Home/Home";
 import AuthLayout from "../Lauouts/AuthLayout";
 import Login from "../Pages/Authentication/Login";
 import Register from "../Pages/Authentication/Register";
-import PetListing from "../Pages/Home/PetListing";
+import PetListing from "../Pages/Home/PetListing/PetListing";
 
 
 export const router = createBrowserRouter([
