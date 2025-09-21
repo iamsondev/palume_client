@@ -48,7 +48,7 @@ const DashboardLayout = () => {
             {menuItems.map((item) => (
               <li key={item.path} className="mb-2">
                 <Link
-                  to="/dashboard" // সব Dashboard links sidebar থেকে
+                  to={`/dashboard/${item.path}`}
                   className="flex items-center px-4 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
                 >
                   <span className="mr-3 text-lg">{item.icon}</span>

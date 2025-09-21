@@ -9,6 +9,8 @@ import PetDetails from "../Pages/Home/PetListing/PetDetails";
 import DonationCamp from "../Pages/Home/DonationalCamp/DonationCamp";
 import DashboardLayout from "../Lauouts/DashboardLayout";
 import DashboardHome from "../Pages/Dashboard/DashboardHome";
+import AddAPet from "../Pages/Dashboard/AddAPet";
+import MyAddedPets from "../Pages/Dashboard/MyAddedPets";
 
 export const router = createBrowserRouter([
   {
@@ -55,6 +57,14 @@ export const router = createBrowserRouter([
       {
         index: true,
         Component: DashboardHome,
+      },
+      {
+        path: "add-pet",
+        element: <AddAPet></AddAPet>,
+      },
+      {
+        path: "my-pets",
+        element: <MyAddedPets></MyAddedPets>,
       },
     ],
   },
