@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../Hook/useAxiosSecure";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import Swal from "sweetalert2";
+import useAuth from "../../../Hook/useAuth";
 
-const PetDetails = ({ user }) => {
-  const { id } = useParams(); // Get pet ID from URL
+const PetDetails = () => {
+  const { user } = useAuth();
+  const { id } = useParams();
   const axiosSecure = useAxiosSecure();
+  const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [phone, setPhone] = useState("");
@@ -14,19 +18,25 @@ const PetDetails = ({ user }) => {
   const [successMsg, setSuccessMsg] = useState("");
 
   // Fetch pet details
-  const { data: pet, isLoading, isError } = useQuery({
+  const {
+    data: pet,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["pet", id],
     queryFn: async () => {
       const res = await axiosSecure.get(`/pets/${id}`);
       return res.data;
     },
-    enabled: !!id, // Only fetch if ID exists
+    enabled: !!id,
   });
 
-  if (isLoading) return <p className="text-center py-10">Loading pet details...</p>;
-  if (isError || !pet) return <p className="text-center py-10">Failed to load pet details.</p>;
+  if (isLoading)
+    return <p className="text-center py-10">Loading pet details...</p>;
+  if (isError || !pet)
+    return <p className="text-center py-10">Failed to load pet details.</p>;
 
-  // Handle adoption form submission
+  // Submit adoption request
   const handleAdoptSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -35,23 +45,44 @@ const PetDetails = ({ user }) => {
       petId: pet._id,
       petName: pet.name,
       petImage: pet.image,
-      userName: user.name,
-      userEmail: user.email,
+      userName: user?.displayName || "Anonymous",
+      userEmail: user?.email,
       phone,
       address,
       status: "pending",
       createdAt: new Date(),
     };
 
+    console.log("Adoption Data:", adoptionData);
+
     try {
-      await axiosSecure.post("/adoptions", adoptionData);
-      setSuccessMsg("Adoption request submitted successfully!");
+      const res = await axiosSecure.post("/adoptions", adoptionData);
+
+      // SweetAlert success
+      Swal.fire({
+        title: "Success!",
+        text: "Adoption request submitted successfully!",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
       setPhone("");
       setAddress("");
       setIsModalOpen(false);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to submit adoption request.");
+      navigate("/petList");
+    } catch (err) {
+      console.error(
+        "Error submitting adoption:",
+        err.response?.data || err.message
+      );
+
+      // SweetAlert error
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to submit adoption request. Please fill all required fields.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     } finally {
       setLoading(false);
     }
@@ -68,7 +99,9 @@ const PetDetails = ({ user }) => {
         />
         <div className="p-6 flex flex-col justify-between flex-1">
           <div>
-            <h2 className="text-3xl font-bold mb-2 text-gray-800">{pet.name}</h2>
+            <h2 className="text-3xl font-bold mb-2 text-gray-800">
+              {pet.name}
+            </h2>
             <p className="text-gray-600 mb-1">Age: {pet.age}</p>
             <p className="text-gray-600 mb-1">Category: {pet.category}</p>
             <p className="text-gray-600 mb-1">Location: {pet.location}</p>
@@ -95,6 +128,7 @@ const PetDetails = ({ user }) => {
             >
               &times;
             </button>
+
             <h3 className="text-2xl font-semibold mb-4 text-gray-800">
               Adopt {pet.name}
             </h3>
@@ -102,16 +136,20 @@ const PetDetails = ({ user }) => {
             {successMsg && <p className="text-green-500 mb-4">{successMsg}</p>}
 
             <form onSubmit={handleAdoptSubmit} className="space-y-4">
+              {/* Pet Info (programmatic) */}
               <div>
                 <p className="text-gray-700 font-medium">Pet Name:</p>
                 <p>{pet.name}</p>
               </div>
 
+              {/* User Info */}
               <div>
-                <label className="block text-gray-700 font-medium">Your Name</label>
+                <label className="block text-gray-700 font-medium">
+                  Your Name
+                </label>
                 <input
                   type="text"
-                  value={user.name}
+                  value={user?.displayName || user?.name || ""}
                   disabled
                   className="w-full border rounded px-3 py-2 bg-gray-100 cursor-not-allowed"
                 />
@@ -121,14 +159,17 @@ const PetDetails = ({ user }) => {
                 <label className="block text-gray-700 font-medium">Email</label>
                 <input
                   type="email"
-                  value={user.email}
+                  value={user?.email || ""}
                   disabled
                   className="w-full border rounded px-3 py-2 bg-gray-100 cursor-not-allowed"
                 />
               </div>
 
+              {/* Editable Fields */}
               <div>
-                <label className="block text-gray-700 font-medium">Phone Number</label>
+                <label className="block text-gray-700 font-medium">
+                  Phone Number
+                </label>
                 <input
                   type="text"
                   value={phone}
@@ -140,7 +181,9 @@ const PetDetails = ({ user }) => {
               </div>
 
               <div>
-                <label className="block text-gray-700 font-medium">Address</label>
+                <label className="block text-gray-700 font-medium">
+                  Address
+                </label>
                 <textarea
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}

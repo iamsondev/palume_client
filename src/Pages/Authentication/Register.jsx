@@ -2,71 +2,93 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import useAuth from "../../Hook/useAuth";
+import useAxiosSecure from "../../Hook/useAxiosSecure";
 import GoogleLogin from "./SocialLogin/GoogleLogin";
 import GithubLogin from "./SocialLogin/GithubLogin";
 import axios from "axios";
+import { updateProfile } from "firebase/auth";
 
 const Register = () => {
   const navigate = useNavigate();
-  const [selectedImage, setSelectedImage] = useState(null); // ✅ Image state
-
+  const [selectedImage, setSelectedImage] = useState(null);
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm();
+  const { createUser, updateUserProfile } = useAuth();
+  const axiosSecure = useAxiosSecure();
 
-  const { createUser } = useAuth();
-
-  // ✅ Handle Image Upload Function
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const handleImageUpload = async (file) => {
+    if (!file) return null;
 
     try {
-      // Set local state for preview if needed
-      setSelectedImage(file);
-      console.log("Selected Image:", file);
-
-      // Create FormData
       const formData = new FormData();
-      formData.append("image", file); // "image" = backend field name
+      formData.append("image", file);
 
-      // Example: Upload to server
-      const response = await axios.post(`https://api.imgbb.com/1/upload?expiration=600&key=${import.meta.env.VITE_image_upload_key}`);
-
-      console.log("Upload Success:", response.data);
+      const response = await fetch(
+        `https://api.imgbb.com/1/upload?expiration=600&key=${
+          import.meta.env.VITE_image_upload_key
+        }`,
+        { method: "POST", body: formData }
+      );
+      const data = await response.json();
+      return data.data.url;
     } catch (error) {
-      console.error("Upload Error:", error);
+      console.error("Image Upload Error:", error);
+      return null;
     }
   };
 
+  const onSubmit = async (data) => {
+    try {
+      const result = await createUser(data.email, data.password);
+      const user = result.user;
 
-  const onSubmit = (data) => {
-    console.log("Form Data:", data);
-    console.log("Selected Image File:", selectedImage); 
+      // 1️⃣ Upload profile image if selected
+      let photoURL = "";
+      if (selectedImage) {
+        const formData = new FormData();
+        formData.append("image", selectedImage);
+        const res = await axios.post(
+          `https://api.imgbb.com/1/upload?expiration=600&key=${
+            import.meta.env.VITE_image_upload_key
+          }`,
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+        photoURL = res.data.data.url;
+      }
 
-    createUser(data.email, data.password)
-      .then((result) => {
-        console.log(result.user);
-        navigate("/");
-      })
-      .catch((error) => {
-        console.log(error);
+      // 2️⃣ Update Firebase profile
+      await updateProfile(user, {
+        displayName: data.fullName,
+        photoURL,
       });
+
+      // 3️⃣ Send user data to MongoDB
+      await axiosSecure.post("/users", {
+        name: data.fullName,
+        email: data.email,
+        role: "user",
+        photoURL,
+      });
+
+      navigate("/");
+    } catch (error) {
+      console.error("Registration Error:", error);
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br">
-      {/* Form Section */}
       <div className="flex-1 flex flex-col justify-center items-center p-6">
         <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-10 border border-gray-200">
-          {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Full Name</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Full Name
+              </label>
               <input
                 type="text"
                 {...register("fullName", { required: "Full name is required" })}
@@ -74,50 +96,68 @@ const Register = () => {
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 outline-none transition"
               />
               {errors.fullName && (
-                <p className="text-sm text-red-500 mt-1">{errors.fullName.message}</p>
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.fullName.message}
+                </p>
               )}
             </div>
 
-            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
               <input
                 type="email"
                 {...register("email", {
                   required: "Email is required",
-                  pattern: { value: /^\S+@\S+$/i, message: "Invalid email address" },
+                  pattern: {
+                    value: /^\S+@\S+$/i,
+                    message: "Invalid email address",
+                  },
                 })}
                 placeholder="example@mail.com"
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 outline-none transition"
               />
-              {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>}
+              {errors.email && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
-            {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
               <input
                 type="password"
                 {...register("password", {
                   required: "Password is required",
-                  minLength: { value: 6, message: "Password must be at least 6 characters" },
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
                 })}
                 placeholder="Enter password"
                 className="mt-2 block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 outline-none transition"
               />
-              {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>}
+              {errors.password && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
-            {/* ✅ Profile Image */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Profile Image</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Profile Image
+              </label>
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageUpload} // ✅ Custom handler
+                onChange={(e) => setSelectedImage(e.target.files[0])}
                 className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-pink-500 file:text-white hover:file:bg-pink-600 transition"
               />
-              {/* Preview (optional) */}
               {selectedImage && (
                 <img
                   src={URL.createObjectURL(selectedImage)}
@@ -127,7 +167,6 @@ const Register = () => {
               )}
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               className="w-full py-3 mt-3 text-white font-bold rounded-2xl bg-gradient-to-r from-pink-500 to-yellow-400 hover:scale-105 transition-transform duration-300"
@@ -136,14 +175,15 @@ const Register = () => {
             </button>
           </form>
 
-          {/* Social Login */}
           <GoogleLogin />
           <GithubLogin />
 
-          {/* Footer */}
           <p className="text-sm text-gray-500 text-center mt-6">
             Already have an account?{" "}
-            <a href="/login" className="text-pink-600 hover:underline font-medium">
+            <a
+              href="/login"
+              className="text-pink-600 hover:underline font-medium"
+            >
               Login
             </a>
           </p>

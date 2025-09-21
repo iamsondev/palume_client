@@ -1,18 +1,30 @@
 import React from "react";
 import { FaGithub } from "react-icons/fa";
 import useAuth from "../../../Hook/useAuth";
+import { useNavigate } from "react-router";
 
-const GithubLogin = ({  text }) => {
-  const {signInWithGithub}= useAuth();
-  const handleGithubSignIn =()=>{
-    signInWithGithub()
-    .then(result=>{
-      console.log(result.user)
-    })
-    .catch(error=>{
-      console.error(error)
-    })
-  }
+const GithubLogin = ({ text }) => {
+  const { signInWithGithub } = useAuth();
+  const navigate = useNavigate();
+  const handleGithubSignIn = async () => {
+    try {
+      const result = await signInWithGithub();
+      const user = result.user;
+
+      // MongoDB-তে save করা
+      await axiosSecure.post("/users", {
+        name: user.displayName || "Anonymous",
+        email: user.email,
+        role: "user",
+        photoURL: user.photoURL,
+      });
+
+      navigate("/"); // login successful হলে home এ redirect
+    } catch (error) {
+      console.error("GitHub Login Error:", error);
+    }
+  };
+
   return (
     <div className="flex justify-center">
       <button
