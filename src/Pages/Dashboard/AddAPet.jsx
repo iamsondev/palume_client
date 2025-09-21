@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import Select from "react-select";
-import useAxiosSecure from "../../Hook/useAxiosSecure";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router";
+import useAxiosSecure from "../../Hook/useAxiosSecure";
+import useAuth from "../../Hook/useAuth";
 
 const categories = [
   { value: "dog", label: "Dog" },
@@ -13,6 +14,7 @@ const categories = [
 ];
 
 const AddAPet = () => {
+  const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,6 +24,7 @@ const AddAPet = () => {
     const file = e.target.files[0];
     if (!file) return;
     setLoading(true);
+
     try {
       const formData = new FormData();
       formData.append("image", file);
@@ -33,6 +36,7 @@ const AddAPet = () => {
         { method: "POST", body: formData }
       );
       const data = await res.json();
+
       if (data.success) setImageUrl(data.data.url);
       else throw new Error("Image upload failed");
     } catch (err) {
@@ -64,6 +68,15 @@ const AddAPet = () => {
       return errors;
     },
     onSubmit: async (values, { resetForm }) => {
+      if (!axiosSecure) {
+        Swal.fire(
+          "Session expired",
+          "Please login again to continue.",
+          "warning"
+        ).then(() => navigate("/login"));
+        return;
+      }
+
       try {
         const petData = {
           name: values.name,
@@ -74,18 +87,23 @@ const AddAPet = () => {
           longDescription: values.longDescription,
           imageUrl,
           adopted: false,
-          createdAt: new Date(),
+          ownerEmail: user.email, // ✅ same as backend expects
         };
-
-        const res = await axiosSecure.post("/pets", petData);
+        await axiosSecure.post("/pets", petData);
 
         Swal.fire("Success", "Pet added successfully!", "success");
         resetForm();
         setImageUrl("");
-        navigate("/my-pets");
+        navigate("/dashboard/my-pets");
       } catch (err) {
         console.error("Error adding pet:", err);
-        Swal.fire("Error", "Failed to add pet!", "error");
+        if (err.response?.status === 401) {
+          Swal.fire("Session expired", "Please login again", "warning").then(
+            () => navigate("/login")
+          );
+        } else {
+          Swal.fire("Error", "Failed to add pet!", "error");
+        }
       }
     },
   });
@@ -239,9 +257,12 @@ const AddAPet = () => {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all"
+          disabled={loading || !axiosSecure}
+          className={`w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all ${
+            loading || !axiosSecure ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          Add Pet
+          {loading ? "Uploading..." : "Add Pet"}
         </button>
       </form>
     </div>

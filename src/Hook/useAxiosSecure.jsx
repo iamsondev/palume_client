@@ -1,32 +1,25 @@
+// useAxiosSecure.jsx
 import axios from "axios";
-import { useEffect } from "react";
-import useAuth from "./useAuth";
+import { getAuth } from "firebase/auth";
 
-// Create axios instance
 const axiosSecure = axios.create({
   baseURL: "http://localhost:5000",
 });
 
 const useAxiosSecure = () => {
-  const { user } = useAuth() || {};
+  const auth = getAuth();
 
-  useEffect(() => {
-    if (!user?.accessToken) return;
+  // প্রতিবার call করার সময় fresh token নাও
+  axiosSecure.interceptors.request.use(async (config) => {
+    const user = auth.currentUser;
+    if (user) {
+      const token = await user.getIdToken(true);
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
 
-    const requestInterceptor = axiosSecure.interceptors.request.use(
-      (config) => {
-        config.headers.Authorization = `Bearer ${user.accessToken}`;
-        return config;
-      },
-      (error) => Promise.reject(error)
-    );
-
-    return () => {
-      axiosSecure.interceptors.request.eject(requestInterceptor);
-    };
-  }, [user?.accessToken]);
-
-  return axiosSecure; // ✅ important: return the axios instance directly
+  return axiosSecure;
 };
 
 export default useAxiosSecure;
