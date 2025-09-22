@@ -30,7 +30,7 @@ const DashboardLayout = () => {
     },
     {
       name: "My Donation Campaigns",
-      path: "my-donation-campaigns",
+      path: "my-donation-campaign",
       icon: <FaMoneyCheckAlt />,
     },
     { name: "My Donations", path: "my-donations", icon: <FaGift /> },
