@@ -19,15 +19,16 @@ const MyAddedPets = () => {
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-
+  const [pets, setPets] = useState([]);
   const [deletePetId, setDeletePetId] = useState(null);
 
   // Fetch user's pets
-  const { data: pets = [], isLoading } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: ["my-added-pets", user?.email],
     enabled: !!user && !!axiosSecure,
     queryFn: async () => {
       const res = await axiosSecure.get("/my-added");
+      setPets(res.data); // Save in local state
       return res.data;
     },
     onError: (err) => {
@@ -69,7 +70,7 @@ const MyAddedPets = () => {
             <div className="flex gap-2">
               <button
                 className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                onClick={() => navigate(`/update-pet/${pet._id}`)}
+                onClick={() => navigate(`/dashboard/update-pet/${pet._id}`)}
               >
                 Update
               </button>
@@ -122,12 +123,17 @@ const MyAddedPets = () => {
   });
 
   // Delete handler
-  const handleDelete = async () => {
-    if (!deletePetId) return;
+  const handleDelete = async (petId) => {
     try {
-      await axiosSecure.delete(`/pets/${deletePetId}`);
+      // 1️⃣ Immediately remove from local state
+      setPets((prev) => prev.filter((pet) => pet._id !== petId));
+
+      // 2️⃣ Call delete API
+      await axiosSecure.delete(`/pets/${petId}`);
+
+      // 3️⃣ Close modal
       setDeletePetId(null);
-      queryClient.invalidateQueries(["my-added-pets", user?.email]);
+
       Swal.fire("Deleted", "Pet deleted successfully", "success");
     } catch (err) {
       console.error("Failed to delete pet:", err);
@@ -217,7 +223,7 @@ const MyAddedPets = () => {
                 No
               </button>
               <button
-                onClick={handleDelete}
+                onClick={() => handleDelete(deletePetId)}
                 className="px-4 py-2 bg-red-500 text-white rounded"
               >
                 Yes
