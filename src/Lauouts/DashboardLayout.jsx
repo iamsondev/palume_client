@@ -19,11 +19,6 @@ const DashboardLayout = () => {
     { name: "Add a Pet", path: "add-pet", icon: <FaPaw /> },
     { name: "My Added Pets", path: "my-pets", icon: <FaList /> },
     {
-      name: "Adoption Requests",
-      path: "adoption-requests",
-      icon: <FaClipboardList />,
-    },
-    {
       name: "Create Donation Campaign",
       path: "create-donation",
       icon: <FaDonate />,
@@ -34,6 +29,11 @@ const DashboardLayout = () => {
       icon: <FaMoneyCheckAlt />,
     },
     { name: "My Donations", path: "my-donations", icon: <FaGift /> },
+    {
+      name: "Adoption Requests",
+      path: "adoption-requests",
+      icon: <FaClipboardList />,
+    },
   ];
 
   return (

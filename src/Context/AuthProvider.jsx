@@ -64,7 +64,7 @@ const AuthProvider = ({ children }) => {
 
   const LogOut = () => {
     setLoading(true);
-    return signOut(auth);
+    return signOut(auth).finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -90,7 +90,15 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={authInfo}>
+      {loading ? (
+        <div className="flex justify-center items-center h-screen">
+          <span className="loading loading-dots loading-lg"></span>
+        </div>
+      ) : (
+        children
+      )}
+    </AuthContext.Provider>
   );
 };
 

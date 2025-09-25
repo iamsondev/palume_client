@@ -43,46 +43,23 @@ const PetDetails = () => {
 
     const adoptionData = {
       petId: pet._id,
-      petName: pet.name,
-      petImage: pet.image,
       userName: user?.displayName || "Anonymous",
       userEmail: user?.email,
       phone,
       address,
-      status: "pending",
-      createdAt: new Date(),
     };
 
-    console.log("Adoption Data:", adoptionData);
-
     try {
-      const res = await axiosSecure.post("/adoptions", adoptionData);
-
-      // SweetAlert success
-      Swal.fire({
-        title: "Success!",
-        text: "Adoption request submitted successfully!",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-
-      setPhone("");
-      setAddress("");
-      setIsModalOpen(false);
-      navigate("/petList");
-    } catch (err) {
-      console.error(
-        "Error submitting adoption:",
-        err.response?.data || err.message
+      await axiosSecure.post("/adoptions", adoptionData);
+      Swal.fire(
+        "Success!",
+        "Adoption request submitted successfully!",
+        "success"
       );
-
-      // SweetAlert error
-      Swal.fire({
-        title: "Error!",
-        text: "Failed to submit adoption request. Please fill all required fields.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
+      setIsModalOpen(false);
+      navigate("/pets");
+    } catch (err) {
+      Swal.fire("Error!", "Failed to submit adoption request.", "error");
     } finally {
       setLoading(false);
     }
@@ -93,10 +70,18 @@ const PetDetails = () => {
       {/* Pet Details */}
       <div className="flex flex-col md:flex-row gap-6 bg-white rounded-xl shadow-lg overflow-hidden">
         <img
-          src={pet.image}
+          src={`${pet.image}?w=600&h=450&fit=crop&auto=format,compress`}
+          srcSet={`
+            ${pet.image}?w=400&h=300&fit=crop&auto=format,compress 400w,
+            ${pet.image}?w=600&h=450&fit=crop&auto=format,compress 600w,
+            ${pet.image}?w=800&h=600&fit=crop&auto=format,compress 800w
+          `}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           alt={pet.name}
-          className="w-full md:w-1/2 h-80 object-cover rounded-l-xl"
+          loading="lazy"
+          className="w-full md:w-1/2 h-80 object-cover rounded-l-xl bg-gray-100"
         />
+
         <div className="p-6 flex flex-col justify-between flex-1">
           <div>
             <h2 className="text-3xl font-bold mb-2 text-gray-800">
@@ -136,13 +121,11 @@ const PetDetails = () => {
             {successMsg && <p className="text-green-500 mb-4">{successMsg}</p>}
 
             <form onSubmit={handleAdoptSubmit} className="space-y-4">
-              {/* Pet Info (programmatic) */}
               <div>
                 <p className="text-gray-700 font-medium">Pet Name:</p>
                 <p>{pet.name}</p>
               </div>
 
-              {/* User Info */}
               <div>
                 <label className="block text-gray-700 font-medium">
                   Your Name
@@ -165,7 +148,6 @@ const PetDetails = () => {
                 />
               </div>
 
-              {/* Editable Fields */}
               <div>
                 <label className="block text-gray-700 font-medium">
                   Phone Number

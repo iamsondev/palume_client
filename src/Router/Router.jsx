@@ -14,6 +14,12 @@ import MyAddedPets from "../Pages/Dashboard/MyAddedPets";
 import UpdatePet from "../Pages/Dashboard/UpdatePet";
 import CreateDonationCampaign from "../Pages/Dashboard/CreateDonationCampaign";
 import MyDonationCampaign from "../Pages/Dashboard/MyDonationCampaign";
+import EditDonationCampaign from "../Pages/Dashboard/EditDonationCampaign";
+import MyDonation from "../Pages/Dashboard/MyDonation";
+import AdoptionRequest from "../Pages/Dashboard/AdoptionRequest";
+import PrivateRoute from "../Pages/Routes/PrivateRoute";
+import Forbidden from "../Pages/Home/Forbidden";
+import DonationDetailsWrapper from "../Pages/Home/DonationalCamp/DonationDetailsWrapper";
 
 export const router = createBrowserRouter([
   {
@@ -25,7 +31,7 @@ export const router = createBrowserRouter([
         Component: Home,
       },
       {
-        path: "petList",
+        path: "pets",
         Component: PetListing,
       },
       {
@@ -35,6 +41,15 @@ export const router = createBrowserRouter([
       {
         path: "donationCamp",
         Component: DonationCamp,
+      },
+      {
+        path: "donation-details/:id",
+        element: <DonationDetailsWrapper></DonationDetailsWrapper>,
+      },
+
+      {
+        path: "forbidden",
+        element: <Forbidden></Forbidden>,
       },
     ],
   },
@@ -55,11 +70,15 @@ export const router = createBrowserRouter([
   },
   {
     path: "dashboard",
-    element: <DashboardLayout></DashboardLayout>,
+    element: (
+      <PrivateRoute>
+        <DashboardLayout></DashboardLayout>
+      </PrivateRoute>
+    ),
     children: [
       {
         index: true,
-        Component: DashboardHome,
+        element: <DashboardHome></DashboardHome>,
       },
       {
         path: "add-pet",
@@ -80,6 +99,18 @@ export const router = createBrowserRouter([
       {
         path: "my-donation-campaign",
         element: <MyDonationCampaign></MyDonationCampaign>,
+      },
+      {
+        path: "edit-donation-campaign/:id",
+        element: <EditDonationCampaign />,
+      },
+      {
+        path: "my-donations",
+        element: <MyDonation></MyDonation>,
+      },
+      {
+        path: "adoption-requests",
+        element: <AdoptionRequest></AdoptionRequest>,
       },
     ],
   },

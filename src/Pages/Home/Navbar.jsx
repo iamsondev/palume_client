@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import { Link } from "react-router"; 
+import { Link, useNavigate } from "react-router";
 import { FaUserCircle } from "react-icons/fa";
-import useAuth from "../../Hook/useAuth"; 
+import useAuth from "../../Hook/useAuth";
 
 const Navbar = () => {
-  const { user, LogOut } = useAuth(); 
+  const { user, LogOut } = useAuth();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = () => {
     LogOut()
       .then(() => {
         setDropdownOpen(false);
+        navigate("/"); // ✅ logout এর পর Home page এ redirect
       })
       .catch((err) => console.error(err));
   };
@@ -27,7 +29,7 @@ const Navbar = () => {
         <Link to="/" className="hover:text-pink-500 transition">
           Home
         </Link>
-        <Link to="/petList" className="hover:text-pink-500 transition">
+        <Link to="/pets" className="hover:text-pink-500 transition">
           Pet Listing
         </Link>
         <Link to="/donationCamp" className="hover:text-pink-500 transition">

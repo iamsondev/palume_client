@@ -14,25 +14,20 @@ const PetListing = () => {
 
   const { ref, inView } = useInView();
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
-    queryKey: ["pets", search, category],
-    queryFn: async ({ pageParam = 1 }) => {
-      const res = await axiosSecure.get(
-        `/pets?search=${search}&category=${category}&page=${pageParam}&limit=${pageSize}`
-      );
-      return res.data;
-    },
-    getNextPageParam: (lastPage) =>
-      lastPage?.currentPage < lastPage?.totalPages
-        ? lastPage.currentPage + 1
-        : undefined,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
+    useInfiniteQuery({
+      queryKey: ["pets", search, category],
+      queryFn: async ({ pageParam = 1 }) => {
+        const res = await axiosSecure.get(
+          `/pets?search=${search}&category=${category}&adopted=false&page=${pageParam}&limit=${pageSize}`
+        );
+        return res.data;
+      },
+      getNextPageParam: (lastPage) =>
+        lastPage?.currentPage < lastPage?.totalPages
+          ? lastPage.currentPage + 1
+          : undefined,
+    });
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -42,10 +37,11 @@ const PetListing = () => {
 
   const categories = [
     { value: "", label: "All" },
-    { value: "cat", label: "Cat" },
-    { value: "dog", label: "Dog" },
-    { value: "rabbit", label: "Rabbit" },
+    { value: "cats", label: "Cats" },
+    { value: "dogs", label: "Dogs" },
+    { value: "rabbits", label: "Rabbits" },
     { value: "fish", label: "Fish" },
+    { value: "birds", label: "Birds" },
   ];
 
   const allPets = data?.pages?.flatMap((page) => page.pets ?? []) ?? [];
@@ -70,8 +66,12 @@ const PetListing = () => {
       </div>
 
       {/* Pet Grid */}
-      {status === "loading" && <p className="text-center text-gray-500">Loading pets...</p>}
-      {status === "error" && <p className="text-center text-red-500">Error fetching pets.</p>}
+      {status === "loading" && (
+        <p className="text-center text-gray-500">Loading pets...</p>
+      )}
+      {status === "error" && (
+        <p className="text-center text-red-500">Error fetching pets.</p>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {allPets.map((pet) => (
@@ -80,12 +80,21 @@ const PetListing = () => {
             className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-transform transform hover:scale-105 hover:shadow-2xl"
           >
             <img
-              src={pet.image}
+              src={`${pet.image}?w=400&h=300&fit=crop&auto=format,compress`}
+              srcSet={`
+                ${pet.image}?w=400&h=300&fit=crop&auto=format,compress 400w,
+                ${pet.image}?w=600&h=450&fit=crop&auto=format,compress 600w,
+                ${pet.image}?w=800&h=600&fit=crop&auto=format,compress 800w
+              `}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               alt={pet.name}
-              className="h-56 w-full object-cover"
+              loading="lazy"
+              className="h-56 w-full object-cover bg-gray-100"
             />
             <div className="p-4 flex flex-col flex-1">
-              <h3 className="text-xl font-semibold mb-1 text-gray-800">{pet.name}</h3>
+              <h3 className="text-xl font-semibold mb-1 text-gray-800">
+                {pet.name}
+              </h3>
               <p className="text-gray-600 mb-1">Age: {pet.age}</p>
               <p className="text-gray-600 mb-2">Location: {pet.location}</p>
               <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mb-2">
@@ -99,8 +108,6 @@ const PetListing = () => {
                   View Details
                 </button>
               </Link>
-
-
             </div>
           </div>
         ))}
@@ -109,7 +116,9 @@ const PetListing = () => {
       {/* Infinite Scroll Trigger */}
       <div ref={ref} className="h-10"></div>
 
-      {isFetchingNextPage && <p className="text-center mt-4 text-gray-500">Loading more pets...</p>}
+      {isFetchingNextPage && (
+        <p className="text-center mt-4 text-gray-500">Loading more pets...</p>
+      )}
       {!hasNextPage && allPets.length > 0 && (
         <p className="text-center mt-4 text-gray-500">No more pets.</p>
       )}

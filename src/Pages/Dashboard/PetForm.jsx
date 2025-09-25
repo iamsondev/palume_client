@@ -19,14 +19,59 @@ const PetForm = ({ initialValues, onSubmit, submitLabel }) => {
     if (initialValues?.imageUrl) setImageUrl(initialValues.imageUrl);
   }, [initialValues]);
 
+  // Client-side compression function
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const maxWidth = 800;
+          const maxHeight = 600;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height *= maxWidth / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width *= maxHeight / height;
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              resolve(blob);
+            },
+            "image/jpeg",
+            0.7
+          );
+        };
+      };
+    });
+  };
+
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setLoading(true);
 
     try {
+      const compressedFile = await compressImage(file);
+
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("image", compressedFile);
 
       const res = await fetch(
         `https://api.imgbb.com/1/upload?key=${
@@ -104,7 +149,7 @@ const PetForm = ({ initialValues, onSubmit, submitLabel }) => {
           )}
         </div>
 
-        {/* Pet Name */}
+        {/* Remaining form fields remain unchanged */}
         <div>
           <label className="block mb-2 text-sm font-medium uppercase text-gray-700 dark:text-gray-200">
             Pet Name
@@ -123,7 +168,6 @@ const PetForm = ({ initialValues, onSubmit, submitLabel }) => {
           )}
         </div>
 
-        {/* Pet Age */}
         <div>
           <label className="block mb-2 text-sm font-medium uppercase text-gray-700 dark:text-gray-200">
             Pet Age
@@ -142,7 +186,6 @@ const PetForm = ({ initialValues, onSubmit, submitLabel }) => {
           )}
         </div>
 
-        {/* Category */}
         <div>
           <label className="block mb-2 text-sm font-medium uppercase text-gray-700 dark:text-gray-200">
             Category
@@ -151,8 +194,6 @@ const PetForm = ({ initialValues, onSubmit, submitLabel }) => {
             options={categories}
             value={formik.values.category}
             onChange={(value) => formik.setFieldValue("category", value)}
-            className="react-select-container"
-            classNamePrefix="react-select"
           />
           {formik.errors.category && (
             <p className="mt-1 text-red-600 text-sm bg-red-100 px-2 py-1 rounded">
@@ -161,7 +202,6 @@ const PetForm = ({ initialValues, onSubmit, submitLabel }) => {
           )}
         </div>
 
-        {/* Location */}
         <div>
           <label className="block mb-2 text-sm font-medium uppercase text-gray-700 dark:text-gray-200">
             Location
@@ -180,7 +220,6 @@ const PetForm = ({ initialValues, onSubmit, submitLabel }) => {
           )}
         </div>
 
-        {/* Short Description */}
         <div>
           <label className="block mb-2 text-sm font-medium uppercase text-gray-700 dark:text-gray-200">
             Short Description
@@ -199,7 +238,6 @@ const PetForm = ({ initialValues, onSubmit, submitLabel }) => {
           )}
         </div>
 
-        {/* Long Description */}
         <div>
           <label className="block mb-2 text-sm font-medium uppercase text-gray-700 dark:text-gray-200">
             Long Description
@@ -217,7 +255,6 @@ const PetForm = ({ initialValues, onSubmit, submitLabel }) => {
           )}
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={loading}

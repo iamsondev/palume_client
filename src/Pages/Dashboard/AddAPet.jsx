@@ -12,6 +12,7 @@ const AddAPet = () => {
 
   const handleAdd = async (petData) => {
     try {
+      // Directly send compressed image URL from PetForm
       await axiosSecure.post("/pets", { ...petData, ownerEmail: user.email });
       Swal.fire("Success", "Pet added successfully!", "success");
       navigate("/dashboard/my-pets");

@@ -13,6 +13,8 @@ const MyDonationCampaign = () => {
     donators: [],
   });
 
+  const [pauseLoadingId, setPauseLoadingId] = useState(null); // ✅ Track loading per campaign
+
   // Fetch user's campaigns
   const fetchMyCampaigns = async () => {
     const res = await axiosSecure.get("/donationCampaigns/my-campaigns");
@@ -27,16 +29,26 @@ const MyDonationCampaign = () => {
   // Pause / Unpause mutation
   const pauseMutation = useMutation({
     mutationFn: async (id) => {
+      setPauseLoadingId(id); // start loading
       const res = await axiosSecure.patch(`/donationCampaigns/pause/${id}`);
       return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["myCampaigns"]);
-      Swal.fire("Success", "Campaign updated!", "success");
+      Swal.fire("Success", "Campaign status updated!", "success");
+      setPauseLoadingId(null);
+    },
+    onError: (err) => {
+      Swal.fire(
+        "Error",
+        err.response?.data?.message || "Server error",
+        "error"
+      );
+      setPauseLoadingId(null);
     },
   });
 
-  // View donators mutation
+  // View donators
   const viewDonators = async (id) => {
     try {
       const res = await axiosSecure.get(`/donationCampaigns/donators/${id}`);
@@ -73,6 +85,8 @@ const MyDonationCampaign = () => {
                     100,
                     (campaign.currentAmount / campaign.maxAmount) * 100
                   ) || 0;
+                const isPausing = pauseLoadingId === campaign._id; // check if this campaign is loading
+
                 return (
                   <tr
                     key={campaign._id}
@@ -94,19 +108,26 @@ const MyDonationCampaign = () => {
                     </td>
                     <td className="px-4 py-2 space-x-2">
                       <button
-                        className={`px-3 py-1 rounded ${
+                        className={`px-3 py-1 rounded text-white ${
                           campaign.paused
-                            ? "bg-yellow-500 text-white"
-                            : "bg-red-500 text-white"
-                        }`}
+                            ? "bg-yellow-500 hover:bg-yellow-600"
+                            : "bg-red-500 hover:bg-red-600"
+                        } ${isPausing ? "opacity-50 cursor-not-allowed" : ""}`}
                         onClick={() => pauseMutation.mutate(campaign._id)}
+                        disabled={isPausing}
                       >
-                        {campaign.paused ? "Unpause" : "Pause"}
+                        {isPausing
+                          ? "Updating..."
+                          : campaign.paused
+                          ? "Unpause"
+                          : "Pause"}
                       </button>
                       <button
                         className="px-3 py-1 bg-blue-500 text-white rounded"
                         onClick={() =>
-                          navigate(`/dashboard/edit-donation/${campaign._id}`)
+                          navigate(
+                            `/dashboard/edit-donation-campaign/${campaign._id}`
+                          )
                         }
                       >
                         Edit
