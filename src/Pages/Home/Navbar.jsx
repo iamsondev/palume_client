@@ -9,6 +9,7 @@ const Navbar = () => {
   const { user, LogOut } = useAuth();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Dark/Light mode
   const [darkMode, setDarkMode] = useState(
@@ -43,8 +44,8 @@ const Navbar = () => {
         <Logo />
       </Link>
 
-      {/* Links */}
-      <div className="flex items-center space-x-4 md:space-x-6">
+      {/* Desktop Links */}
+      <div className="hidden md:flex items-center space-x-4 md:space-x-6">
         <Link to="/" className="hover:text-pink-500 transition">
           Home
         </Link>
@@ -124,6 +125,87 @@ const Navbar = () => {
           </div>
         )}
       </div>
+
+      {/* Mobile Hamburger */}
+      <div className="md:hidden flex items-center gap-2">
+        <button
+          onClick={toggleDarkMode}
+          className="text-gray-700 dark:text-gray-200 text-lg p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition"
+        >
+          {darkMode ? <FaSun /> : <FaMoon />}
+        </button>
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="text-gray-700 dark:text-gray-200 text-2xl p-2"
+        >
+          {mobileMenuOpen ? "✖" : "☰"}
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="absolute top-full left-0 w-full bg-white dark:bg-gray-900 shadow-md flex flex-col space-y-2 p-4 md:hidden z-50">
+          <Link
+            to="/"
+            className="hover:text-pink-500 transition"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link
+            to="/pets"
+            className="hover:text-pink-500 transition"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Pet Listing
+          </Link>
+          <Link
+            to="/donationCamp"
+            className="hover:text-pink-500 transition"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Donation Campaigns
+          </Link>
+
+          {user ? (
+            <>
+              <Link
+                to="/dashboard"
+                className="hover:bg-pink-50 dark:hover:bg-gray-700 px-4 py-2 rounded text-gray-700 dark:text-gray-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setMobileMenuOpen(false);
+                }}
+                className="hover:bg-pink-50 dark:hover:bg-gray-700 px-4 py-2 rounded text-gray-700 dark:text-gray-200 text-left w-full"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="px-5 py-2 rounded-lg border-2 border-emerald-500 text-emerald-500 font-medium hover:bg-pink-50 hover:scale-105 transform transition-all duration-300"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="px-5 py-2 rounded-lg bg-gradient-to-r from-emerald-500 via-red-300 to-yellow-400 text-white font-semibold hover:scale-105 transform transition-all duration-300 shadow-lg"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Register
+              </Link>
+            </>
+          )}
+        </div>
+      )}
     </nav>
   );
 };

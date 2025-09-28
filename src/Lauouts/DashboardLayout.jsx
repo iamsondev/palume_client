@@ -1,4 +1,5 @@
-import React from "react";
+// src/Layout/DashboardLayout.jsx
+import React, { useState, useEffect } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router";
 import useAuth from "../Hook/useAuth";
 import useUserRole from "../Hook/useUserRole";
@@ -20,11 +21,23 @@ const DashboardLayout = () => {
   const { role, roleLoading } = useUserRole();
   const navigate = useNavigate();
 
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("theme") === "dark"
+  );
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
+
   const handleLogout = () => {
     LogOut()
-      .then(() => {
-        navigate("/");
-      })
+      .then(() => navigate("/"))
       .catch((err) => console.error(err));
   };
 
@@ -36,7 +49,6 @@ const DashboardLayout = () => {
     );
   }
 
-  // Sidebar nav item class with emerald hover & active
   const navItemClasses = ({ isActive }) =>
     `flex items-center px-4 py-2 rounded transition-all duration-200
      ${
@@ -46,9 +58,18 @@ const DashboardLayout = () => {
      }`;
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+    <div
+      className={`flex h-screen ${darkMode ? "bg-gray-900" : "bg-gray-100"}`}
+    >
       {/* Sidebar */}
-      <aside className="w-72 bg-gradient-to-b from-emerald-800 to-emerald-400 dark:from-gray-900 dark:to-gray-800 text-white shadow-lg flex flex-col">
+      <aside
+        className={`w-72 flex-shrink-0 flex flex-col shadow-lg text-white
+        ${
+          darkMode
+            ? "bg-gray-900"
+            : "bg-gradient-to-b from-emerald-800 to-emerald-400"
+        }`}
+      >
         <div
           className="p-2 flex flex-col items-center justify-center cursor-pointer"
           onClick={() => navigate("/")}
@@ -133,8 +154,15 @@ const DashboardLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <header className="h-16 bg-gradient-to-r from-emerald-800 to-emerald-500 dark:from-gray-800 dark:to-gray-700 shadow flex items-center justify-between px-6">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <header
+          className={`h-16 shadow flex items-center justify-between px-6
+          ${
+            darkMode
+              ? "bg-gray-800"
+              : "bg-gradient-to-r from-emerald-800 to-emerald-500"
+          }`}
+        >
           <div className="text-lg font-semibold text-white">
             Welcome, {user?.displayName || "User"}
           </div>
@@ -146,7 +174,10 @@ const DashboardLayout = () => {
           </button>
         </header>
 
-        <main className="flex-1 p-6 overflow-auto bg-gray-100 dark:bg-gray-900 transition-colors duration-300 rounded-lg shadow-inner">
+        <main
+          className={`flex-1 p-6 overflow-auto transition-colors duration-300
+          ${darkMode ? "bg-gray-900" : "bg-gray-100"}`}
+        >
           <Outlet />
         </main>
       </div>
