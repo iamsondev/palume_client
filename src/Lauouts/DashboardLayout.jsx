@@ -14,6 +14,8 @@ import {
   FaMoneyCheckAlt,
   FaGift,
   FaUsersCog,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
 
 const DashboardLayout = () => {
@@ -24,6 +26,7 @@ const DashboardLayout = () => {
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") === "dark"
   );
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (darkMode) {
@@ -63,7 +66,8 @@ const DashboardLayout = () => {
     >
       {/* Sidebar */}
       <aside
-        className={`w-72 flex-shrink-0 flex flex-col shadow-lg text-white
+        className={`fixed md:relative z-50 top-0 left-0 h-full w-64 flex-shrink-0 flex flex-col shadow-lg text-white transform md:translate-x-0 transition-transform duration-300
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         ${
           darkMode
             ? "bg-gray-900"
@@ -72,26 +76,44 @@ const DashboardLayout = () => {
       >
         <div
           className="p-2 flex flex-col items-center justify-center cursor-pointer"
-          onClick={() => navigate("/")}
+          onClick={() => {
+            navigate("/");
+            setSidebarOpen(false);
+          }}
         >
           <Logo />
-          <span className="ml-2 text-2xl font-bold">User Dashboard</span>
+          <span className="ml-2 text-2xl font-bold text-center">
+            User Dashboard
+          </span>
         </div>
 
         <nav className="mt-6 flex-1 overflow-y-auto">
           <ul>
             <li className="mb-2">
-              <NavLink to="/dashboard" end className={navItemClasses}>
+              <NavLink
+                to="/dashboard"
+                end
+                className={navItemClasses}
+                onClick={() => setSidebarOpen(false)}
+              >
                 <FaHome className="mr-3" /> Home
               </NavLink>
             </li>
             <li className="mb-2">
-              <NavLink to="/dashboard/add-pet" className={navItemClasses}>
+              <NavLink
+                to="/dashboard/add-pet"
+                className={navItemClasses}
+                onClick={() => setSidebarOpen(false)}
+              >
                 <FaPaw className="mr-3" /> Add a Pet
               </NavLink>
             </li>
             <li className="mb-2">
-              <NavLink to="/dashboard/my-pets" className={navItemClasses}>
+              <NavLink
+                to="/dashboard/my-pets"
+                className={navItemClasses}
+                onClick={() => setSidebarOpen(false)}
+              >
                 <FaList className="mr-3" /> My Added Pets
               </NavLink>
             </li>
@@ -99,6 +121,7 @@ const DashboardLayout = () => {
               <NavLink
                 to="/dashboard/create-donation"
                 className={navItemClasses}
+                onClick={() => setSidebarOpen(false)}
               >
                 <FaDonate className="mr-3" /> Create Donation Campaign
               </NavLink>
@@ -107,12 +130,17 @@ const DashboardLayout = () => {
               <NavLink
                 to="/dashboard/my-donation-campaign"
                 className={navItemClasses}
+                onClick={() => setSidebarOpen(false)}
               >
                 <FaMoneyCheckAlt className="mr-3" /> My Donation Campaigns
               </NavLink>
             </li>
             <li className="mb-2">
-              <NavLink to="/dashboard/my-donations" className={navItemClasses}>
+              <NavLink
+                to="/dashboard/my-donations"
+                className={navItemClasses}
+                onClick={() => setSidebarOpen(false)}
+              >
                 <FaGift className="mr-3" /> My Donations
               </NavLink>
             </li>
@@ -120,6 +148,7 @@ const DashboardLayout = () => {
               <NavLink
                 to="/dashboard/adoption-requests"
                 className={navItemClasses}
+                onClick={() => setSidebarOpen(false)}
               >
                 <FaClipboardList className="mr-3" /> Adoption Requests
               </NavLink>
@@ -130,12 +159,20 @@ const DashboardLayout = () => {
                 <hr className="my-4 border-emerald-400 dark:border-gray-600" />
                 <h2 className="text-xl font-bold px-4 mb-2">Admin Dashboard</h2>
                 <li className="mb-2">
-                  <NavLink to="/dashboard/admin" className={navItemClasses}>
+                  <NavLink
+                    to="/dashboard/admin"
+                    className={navItemClasses}
+                    onClick={() => setSidebarOpen(false)}
+                  >
                     <FaUsersCog className="mr-3" /> All Users
                   </NavLink>
                 </li>
                 <li className="mb-2">
-                  <NavLink to="/dashboard/all-pets" className={navItemClasses}>
+                  <NavLink
+                    to="/dashboard/all-pets"
+                    className={navItemClasses}
+                    onClick={() => setSidebarOpen(false)}
+                  >
                     <FaPaw className="mr-3" /> All Pets
                   </NavLink>
                 </li>
@@ -143,6 +180,7 @@ const DashboardLayout = () => {
                   <NavLink
                     to="/dashboard/all-donations"
                     className={navItemClasses}
+                    onClick={() => setSidebarOpen(false)}
                   >
                     <FaDonate className="mr-3" /> All Donations
                   </NavLink>
@@ -154,7 +192,7 @@ const DashboardLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden md:ml-64">
         <header
           className={`h-16 shadow flex items-center justify-between px-6
           ${
@@ -163,6 +201,14 @@ const DashboardLayout = () => {
               : "bg-gradient-to-r from-emerald-800 to-emerald-500"
           }`}
         >
+          {/* Mobile menu button */}
+          <button
+            className="md:hidden text-white text-xl p-2 rounded hover:bg-gray-700"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            {sidebarOpen ? <FaTimes /> : <FaBars />}
+          </button>
+
           <div className="text-lg font-semibold text-white">
             Welcome, {user?.displayName || "User"}
           </div>
