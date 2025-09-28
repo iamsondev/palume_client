@@ -14,9 +14,8 @@ const CallToAction = () => {
   ];
 
   return (
-    <section className="relative bg-gradient-to-r from-pink-50 via-white to-blue-50 py-20">
+    <section className="relative bg-gradient-to-r from-pink-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-20 transition-colors duration-300">
       <div className="container mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
-        
         {/* Left Side - Image Grid */}
         <motion.div
           className="w-full md:w-1/2 grid grid-cols-2 gap-4"
@@ -44,28 +43,28 @@ const CallToAction = () => {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          {/* MODERN HEADLINE */}
+          {/* Headline */}
           <h2 className="text-4xl md:text-5xl font-extrabold leading-tight bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent drop-shadow-sm">
             Adopt Love, Change a Life 🐾
           </h2>
 
-          <p className="mt-4 text-lg text-gray-700 leading-relaxed">
-            From playful dogs to cuddly cats, curious rabbits to cheerful birds —
-            every pet is waiting for a loving home.
-            <span className="block mt-2 italic text-gray-600">
-              “Adopting a pet may not change the whole world, but for that one pet,
-              their entire world will change.”
+          <p className="mt-4 text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+            From playful dogs to cuddly cats, curious rabbits to cheerful birds
+            — every pet is waiting for a loving home.
+            <span className="block mt-2 italic text-gray-600 dark:text-gray-400">
+              “Adopting a pet may not change the whole world, but for that one
+              pet, their entire world will change.”
             </span>
           </p>
 
-          <ul className="mt-6 text-left text-gray-800 space-y-2">
+          <ul className="mt-6 text-left text-gray-800 dark:text-gray-300 space-y-2">
             <li>✅ Give abandoned animals a second chance</li>
             <li>✅ Build a bond of love & trust</li>
             <li>✅ Make a difference with one small step</li>
           </ul>
 
           <Button
-            className="mt-6 px-6 py-3 text-lg rounded-xl shadow-md hover:shadow-xl transition-all"
+            className="mt-6 px-6 py-3 text-lg rounded-xl shadow-md hover:shadow-xl transition-all dark:bg-pink-600 dark:hover:bg-pink-700"
             onClick={() => navigate("/pet-listing")}
           >
             Find Your Perfect Pet ❤️

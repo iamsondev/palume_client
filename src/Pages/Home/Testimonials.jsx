@@ -31,10 +31,10 @@ const testimonials = [
 
 const Testimonials = () => {
   return (
-    <section className="py-20 bg-gradient-to-b from-purple-50 via-pink-50 to-indigo-50">
+    <section className="py-20 bg-gradient-to-b from-purple-50 via-pink-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700">
       <div className="container mx-auto px-4 text-center">
         <motion.h2
-          className="text-4xl md:text-5xl font-extrabold mb-12 text-gray-900"
+          className="text-4xl md:text-5xl font-extrabold mb-12 text-gray-900 dark:text-gray-100"
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -59,7 +59,7 @@ const Testimonials = () => {
           {testimonials.map((testi, index) => (
             <SwiperSlide key={index}>
               <motion.div
-                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 flex flex-col items-center text-center"
+                className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 flex flex-col items-center text-center"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -68,11 +68,17 @@ const Testimonials = () => {
                 <img
                   src={testi.image}
                   alt={testi.pet}
-                  className="w-24 h-24 rounded-full mb-4 object-cover"
+                  className="w-24 h-24 rounded-full mb-4 object-cover border-2 border-pink-500"
                 />
-                <p className="text-gray-700 mb-4">{testi.story}</p>
-                <h3 className="text-lg font-bold text-gray-900">{testi.name}</h3>
-                <span className="text-sm text-gray-500">{testi.pet}</span>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  {testi.story}
+                </p>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                  {testi.name}
+                </h3>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  {testi.pet}
+                </span>
               </motion.div>
             </SwiperSlide>
           ))}

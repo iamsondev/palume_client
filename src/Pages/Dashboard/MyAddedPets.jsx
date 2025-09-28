@@ -1,4 +1,3 @@
-// MyAddedPets.jsx
 import React, { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -22,13 +21,12 @@ const MyAddedPets = () => {
   const [pets, setPets] = useState([]);
   const [deletePetId, setDeletePetId] = useState(null);
 
-  // Fetch user's pets
   const { isLoading } = useQuery({
     queryKey: ["my-added-pets", user?.email],
     enabled: !!user && !!axiosSecure,
     queryFn: async () => {
       const res = await axiosSecure.get("/my-added");
-      setPets(res.data); // Save in local state
+      setPets(res.data);
       return res.data;
     },
     onError: (err) => {
@@ -37,23 +35,25 @@ const MyAddedPets = () => {
     },
   });
 
-  // Table columns
   const columnHelper = createColumnHelper();
   const columns = useMemo(
     () => [
-      columnHelper.accessor((row, index) => index + 1, {
-        header: "S/N",
-        cell: (info) => info.getValue(),
-      }),
+      columnHelper.accessor((row, index) => index + 1, { header: "S/N" }),
       columnHelper.accessor("name", { header: "Pet Name" }),
-      columnHelper.accessor("category", { header: "Category" }),
+      columnHelper.accessor("category", {
+        header: "Category",
+        cell: (info) =>
+          typeof info.getValue() === "object"
+            ? info.getValue().label
+            : info.getValue(),
+      }),
       columnHelper.accessor("imageUrl", {
         header: "Image",
         cell: (info) => (
           <img
             src={info.getValue()}
             alt="pet"
-            className="w-16 h-16 object-cover rounded"
+            className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded"
           />
         ),
       }),
@@ -67,22 +67,22 @@ const MyAddedPets = () => {
         cell: ({ row }) => {
           const pet = row.original;
           return (
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button
-                className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-xs sm:text-sm"
                 onClick={() => navigate(`/dashboard/update-pet/${pet._id}`)}
               >
                 Update
               </button>
               <button
-                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-xs sm:text-sm"
                 onClick={() => setDeletePetId(pet._id)}
               >
                 Delete
               </button>
               {!pet.adopted && (
                 <button
-                  className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
+                  className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-xs sm:text-sm"
                   onClick={async () => {
                     try {
                       await axiosSecure.patch(`/pets/adopt/${pet._id}`);
@@ -112,7 +112,6 @@ const MyAddedPets = () => {
     [axiosSecure, navigate, queryClient, user?.email]
   );
 
-  // Initialize table
   const table = useReactTable({
     data: pets,
     columns,
@@ -122,18 +121,11 @@ const MyAddedPets = () => {
     initialState: { pagination: { pageSize: 10 } },
   });
 
-  // Delete handler
   const handleDelete = async (petId) => {
     try {
-      // 1️⃣ Immediately remove from local state
       setPets((prev) => prev.filter((pet) => pet._id !== petId));
-
-      // 2️⃣ Call delete API
       await axiosSecure.delete(`/pets/${petId}`);
-
-      // 3️⃣ Close modal
       setDeletePetId(null);
-
       Swal.fire("Deleted", "Pet deleted successfully", "success");
     } catch (err) {
       console.error("Failed to delete pet:", err);
@@ -141,90 +133,180 @@ const MyAddedPets = () => {
     }
   };
 
-  if (isLoading) return <p>Loading pets...</p>;
+  if (isLoading)
+    return (
+      <div className="space-y-3">
+        {[1, 2, 3].map((_, idx) => (
+          <div
+            key={idx}
+            className="h-6 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse"
+          ></div>
+        ))}
+      </div>
+    );
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">My Added Pets</h1>
+    <div className="p-2 sm:p-4">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">
+        My Added Pets
+      </h1>
 
-      {/* Table */}
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th
-                  key={header.id}
-                  className="border p-2 cursor-pointer"
-                  onClick={header.column.getToggleSortingHandler()}
+      {/* Desktop Table */}
+      <div className="hidden sm:block overflow-x-auto">
+        <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600">
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="border p-2 text-xs sm:text-sm cursor-pointer text-gray-800 dark:text-gray-200"
+                    onClick={header.column.getToggleSortingHandler()}
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                    {{
+                      asc: " 🔼",
+                      desc: " 🔽",
+                    }[header.column.getIsSorted()] ?? null}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className="hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    className="border p-1 sm:p-2 text-xs sm:text-sm text-gray-800 dark:text-gray-200"
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="sm:hidden flex flex-col gap-4">
+        {pets.map((pet) => (
+          <div
+            key={pet._id}
+            className="bg-white dark:bg-gray-900 p-4 rounded-xl shadow flex flex-col gap-2"
+          >
+            <div className="flex justify-between items-center">
+              <h2 className="font-bold text-gray-800 dark:text-gray-200">
+                {pet.name}
+              </h2>
+              <img
+                src={pet.imageUrl}
+                alt={pet.name}
+                className="w-16 h-16 object-cover rounded"
+              />
+            </div>
+            <p className="text-gray-700 dark:text-gray-300">
+              <strong>Category:</strong>{" "}
+              {typeof pet.category === "object"
+                ? pet.category.label
+                : pet.category}
+            </p>
+            <p className="text-gray-700 dark:text-gray-300">
+              <strong>Status:</strong> {pet.adopted ? "Adopted" : "Not Adopted"}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-xs"
+                onClick={() => navigate(`/dashboard/update-pet/${pet._id}`)}
+              >
+                Update
+              </button>
+              <button
+                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-xs"
+                onClick={() => setDeletePetId(pet._id)}
+              >
+                Delete
+              </button>
+              {!pet.adopted && (
+                <button
+                  className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-xs"
+                  onClick={async () => {
+                    try {
+                      await axiosSecure.patch(`/pets/adopt/${pet._id}`);
+                      queryClient.invalidateQueries([
+                        "my-added-pets",
+                        user?.email,
+                      ]);
+                      Swal.fire("Success", "Pet marked as adopted", "success");
+                    } catch (err) {
+                      console.error("Failed to mark adopted:", err);
+                      Swal.fire(
+                        "Error",
+                        err.response?.data?.message || err.message,
+                        "error"
+                      );
+                    }
+                  }}
                 >
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                  {{
-                    asc: " 🔼",
-                    desc: " 🔽",
-                  }[header.column.getIsSorted()] ?? null}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
+                  Adopted
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
 
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="hover:bg-gray-100">
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="border p-2">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Pagination */}
       {table.getPageCount() > 1 && (
-        <div className="flex gap-2 mt-4 items-center">
+        <div className="flex flex-wrap gap-2 mt-4 items-center text-gray-800 dark:text-gray-200">
           <button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="px-2 py-1 border rounded"
+            className="px-2 py-1 border rounded dark:border-gray-600"
           >
             Prev
           </button>
-          <span>
+          <span className="text-sm sm:text-base">
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}
           </span>
           <button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="px-2 py-1 border rounded"
+            className="px-2 py-1 border rounded dark:border-gray-600"
           >
             Next
           </button>
         </div>
       )}
 
-      {/* Delete Modal */}
       {deletePetId && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded shadow w-96">
-            <h2 className="text-lg font-bold mb-4">Confirm Delete</h2>
-            <p>Are you sure you want to delete this pet?</p>
-            <div className="flex justify-end gap-4 mt-4">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-2">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded shadow w-full max-w-md">
+            <h2 className="text-lg font-bold mb-4 text-gray-800 dark:text-gray-200">
+              Confirm Delete
+            </h2>
+            <p className="text-gray-700 dark:text-gray-300">
+              Are you sure you want to delete this pet?
+            </p>
+            <div className="flex flex-wrap justify-end gap-2 mt-4">
               <button
                 onClick={() => setDeletePetId(null)}
-                className="px-4 py-2 border rounded"
+                className="px-4 py-2 border rounded dark:border-gray-600 text-gray-800 dark:text-gray-200"
               >
                 No
               </button>
               <button
                 onClick={() => handleDelete(deletePetId)}
-                className="px-4 py-2 bg-red-500 text-white rounded"
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
               >
                 Yes
               </button>

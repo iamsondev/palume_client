@@ -1,12 +1,67 @@
-# React + Vite
+# PawLume Pet Adoption Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Live Demo:** [https://pawlume.example.com](https://pawlume.example.com)
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Project Purpose
 
-## Expanding the ESLint configuration
+PawLume is a **full-stack pet adoption platform** built with the **MERN stack** (MongoDB, Express.js, React.js, Node.js).  
+The platform allows users to:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Browse and adopt pets
+- Submit donation campaigns for pets
+- Manage their own added pets
+- Admins can manage users, pets, and donations
+
+The platform is fully **responsive**, supports **dark/light mode**, and provides a smooth, modern UI/UX experience using **Tailwind CSS** and **ShadCN UI**.
+
+---
+
+## Key Features
+
+- **Authentication & Authorization:** Email/password login, OAuth (Google/GitHub), JWT
+- **Pet Management:** Add, update, delete pets; mark as adopted
+- **Adoption Requests:** Submit, accept, or reject requests
+- **Donation Campaigns:** Create, pause/resume, and refund donations (Stripe integrated)
+- **Admin Dashboard:** Manage users (ban/unban, make admin), pets, and donations
+- **User Dashboard:** My Pets, My Donations, Adoption Requests management
+- **Responsive & Dark Mode:** Fully mobile-friendly tables, modals, and forms
+- **Interactive UI:** Buttons, tables, modals, and alerts using ShadCN UI, SweetAlert2, React Icons
+
+---
+
+## NPM Packages Used
+
+**Frontend:**
+
+- react
+- react-dom
+- react-router-dom
+- @tanstack/react-query
+- tailwindcss
+- shadcn-ui
+- sweetalert2
+- react-icons
+
+**Backend:**
+
+- express
+- mongoose
+- dotenv
+- cors
+- jsonwebtoken
+- bcryptjs
+- stripe
+
+---
+
+## Live URL
+
+You can check the live application here: [https://pawlume.example.com](https://pawlume.example.com)
+
+---
+
+## Installation & Setup
+
+1. Clone the repository:

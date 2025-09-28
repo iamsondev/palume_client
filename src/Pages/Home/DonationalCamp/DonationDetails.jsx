@@ -19,7 +19,6 @@ const DonationDetails = () => {
   const [cardError, setCardError] = useState("");
   const [cardComplete, setCardComplete] = useState(false);
 
-  // Fetch campaign details
   useEffect(() => {
     const fetchCampaign = async () => {
       try {
@@ -32,7 +31,6 @@ const DonationDetails = () => {
     fetchCampaign();
   }, [id, axiosSecure]);
 
-  // Fetch recommended campaigns
   useEffect(() => {
     const fetchRecommended = async () => {
       try {
@@ -52,14 +50,12 @@ const DonationDetails = () => {
     try {
       setDonating(true);
 
-      // 1️⃣ Create PaymentIntent
       const res = await axiosSecure.post("/create-payment-intent", {
         amount: parseFloat(amount),
         campaignId: id,
       });
       const clientSecret = res.data.clientSecret;
 
-      // 2️⃣ Confirm payment
       const cardElement = elements.getElement(CardElement);
       const { error, paymentIntent } = await stripe.confirmCardPayment(
         clientSecret,
@@ -71,7 +67,6 @@ const DonationDetails = () => {
         return;
       }
 
-      // 3️⃣ Save donation to DB
       if (paymentIntent.status === "succeeded") {
         await axiosSecure.post("/save-donation", {
           campaignId: id,
@@ -81,7 +76,7 @@ const DonationDetails = () => {
 
         Swal.fire("Thank You!", "Donation successful!", "success");
         setIsModalOpen(false);
-        navigate("/donation-campaigns");
+        navigate("/donationCamp");
       }
     } catch (err) {
       console.error(err);
@@ -97,19 +92,23 @@ const DonationDetails = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
       {/* Campaign Details */}
-      <div className="bg-white shadow-lg rounded-xl overflow-hidden mb-8">
+      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden mb-8">
         <img
           src={campaign.imageUrl}
           alt={campaign.petName}
           className="w-full h-72 object-cover"
         />
         <div className="p-6">
-          <h2 className="text-3xl font-bold mb-2">{campaign.petName}</h2>
-          <p className="text-gray-600 mb-2">{campaign.shortDescription}</p>
-          <p className="mb-1">
+          <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
+            {campaign.petName}
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-2">
+            {campaign.shortDescription}
+          </p>
+          <p className="mb-1 text-gray-800 dark:text-gray-200">
             <strong>Maximum Donation:</strong> ${campaign.maxAmount}
           </p>
-          <p className="mb-1">
+          <p className="mb-1 text-gray-800 dark:text-gray-200">
             <strong>Collected:</strong> $
             {campaign.donators?.reduce((acc, d) => acc + d.amount, 0) || 0}
           </p>
@@ -125,12 +124,14 @@ const DonationDetails = () => {
       {/* Recommended Campaigns */}
       {recommended.length > 0 && (
         <>
-          <h3 className="text-2xl font-semibold mb-4">Recommended Campaigns</h3>
+          <h3 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">
+            Recommended Campaigns
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {recommended.map((r) => (
               <div
                 key={r._id}
-                className="bg-white shadow rounded-lg overflow-hidden"
+                className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden"
               >
                 <img
                   src={r.imageUrl}
@@ -138,7 +139,9 @@ const DonationDetails = () => {
                   className="w-full h-40 object-cover"
                 />
                 <div className="p-4">
-                  <h4 className="text-lg font-bold">{r.petName}</h4>
+                  <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {r.petName}
+                  </h4>
                   <button
                     onClick={() => navigate(`/donation-details/${r._id}`)}
                     className="mt-3 text-blue-500 underline"
@@ -155,14 +158,14 @@ const DonationDetails = () => {
       {/* Donation Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl relative">
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-md w-full shadow-xl relative">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-3 right-3 text-xl font-bold"
+              className="absolute top-3 right-3 text-xl font-bold text-gray-700 dark:text-gray-200"
             >
               ×
             </button>
-            <h3 className="text-2xl font-semibold mb-4">
+            <h3 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">
               Donate to {campaign.petName}
             </h3>
             <form onSubmit={handleDonate} className="space-y-4">
@@ -173,17 +176,16 @@ const DonationDetails = () => {
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter amount"
                 required
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
-              <CardElement
-                className={`p-3 border rounded ${
-                  cardError ? "border-red-500" : "border-gray-300"
-                }`}
-                onChange={(e) => {
-                  setCardError(e.error ? e.error.message : "");
-                  setCardComplete(e.complete);
-                }}
-              />
+              <div className="border rounded p-3 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                <CardElement
+                  onChange={(e) => {
+                    setCardError(e.error ? e.error.message : "");
+                    setCardComplete(e.complete);
+                  }}
+                />
+              </div>
               {cardError && <p className="text-red-500 text-sm">{cardError}</p>}
               <button
                 type="submit"

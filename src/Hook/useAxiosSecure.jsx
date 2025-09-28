@@ -3,17 +3,36 @@ import axios from "axios";
 import { getAuth } from "firebase/auth";
 
 const axiosSecure = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "https://pawlume-server.vercel.app",
 });
 
-const useAxiosSecure = () => {
-  const auth = getAuth();
+// Cached token store
+let cachedToken = null;
+let tokenExpiry = null;
 
-  // প্রতিবার call করার সময় fresh token নাও
+const getToken = async () => {
+  const auth = getAuth();
+  const user = auth.currentUser;
+  if (!user) return null;
+
+  const now = Date.now();
+
+  if (cachedToken && tokenExpiry && now < tokenExpiry) {
+    return cachedToken;
+  }
+
+  // fresh token নাও এবং cache করো
+  const token = await user.getIdToken(true);
+  cachedToken = token;
+  tokenExpiry = now + 55 * 60 * 1000; // ৫৫ মিনিট পর্যন্ত valid ধরে নিচ্ছি
+
+  return token;
+};
+
+const useAxiosSecure = () => {
   axiosSecure.interceptors.request.use(async (config) => {
-    const user = auth.currentUser;
-    if (user) {
-      const token = await user.getIdToken(true);
+    const token = await getToken();
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;

@@ -1,12 +1,23 @@
 import React from "react";
 import { Outlet, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
+import Logo from "../Pages/Home/Logo";
 
 const AuthLayout = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen flex flex-col md:flex-row relative">
+      {/* Navbar with clickable Logo only */}
+      <div className="absolute top-0 left-0 w-full p-4 z-10 flex justify-center md:justify-start">
+        <div
+          className="cursor-pointer hover:scale-105 transition-transform duration-300"
+          onClick={() => navigate("/")}
+        >
+          <Logo />
+        </div>
+      </div>
+
       {/* Left Side - Auth Form + Mobile Image */}
       <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-pink-50 via-white to-blue-50 p-6">
         {/* Mobile Image */}
@@ -40,7 +51,8 @@ const AuthLayout = () => {
               Adopt Love, Give Hope 🐾
             </h2>
             <p className="mt-4 text-lg text-gray-200 max-w-md leading-relaxed">
-              Every pet deserves a second chance. Be the reason they wag their tail again.
+              Every pet deserves a second chance. Be the reason they wag their
+              tail again.
             </p>
             <Button
               onClick={() => navigate("/pet-listing")}

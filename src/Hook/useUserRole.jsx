@@ -11,15 +11,18 @@ const useUserRole = () => {
     isLoading: roleLoading,
     isError,
     error,
-    refetch,
   } = useQuery({
     queryKey: ["userRole", user?.email],
     queryFn: async () => {
-      if (!user?.email) return null;
+      if (!user?.email) return { role: "guest" };
       const res = await axiosSecure.get(`/users/role/${user.email}`);
       return res.data;
     },
     enabled: !!user?.email && !authLoading,
+    staleTime: 1000 * 60 * 10, // 10 মিনিট cache
+    cacheTime: 1000 * 60 * 30, // 30 মিনিট cache
+    refetchOnWindowFocus: false,
+    retry: 1,
   });
 
   return {
@@ -27,7 +30,6 @@ const useUserRole = () => {
     roleLoading,
     isError,
     error,
-    refetch,
   };
 };
 

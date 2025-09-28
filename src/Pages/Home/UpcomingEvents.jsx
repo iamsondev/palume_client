@@ -32,9 +32,9 @@ const events = [
 
 const UpcomingEvents = () => {
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 text-center">
-        <h2 className="text-4xl md:text-5xl font-extrabold mb-12 text-gray-900">
+        <h2 className="text-4xl md:text-5xl font-extrabold mb-12 text-gray-900 dark:text-white">
           Upcoming Events & Campaigns
         </h2>
 
@@ -54,17 +54,30 @@ const UpcomingEvents = () => {
         >
           {events.map((event, index) => (
             <SwiperSlide key={index}>
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-700 overflow-hidden hover:shadow-2xl transition-shadow duration-300">
                 <div
                   className="h-64 bg-cover bg-center"
                   style={{ backgroundImage: `url(${event.image})` }}
-                ></div>
+                  role="img"
+                  aria-label={event.title}
+                />
                 <div className="p-6 text-left">
-                  <p className="text-sm text-gray-400 mb-2">{event.date}</p>
-                  <h3 className="text-2xl font-bold mb-3 text-gray-900">{event.title}</h3>
-                  <p className="text-gray-600 mb-4">{event.description}</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-300 mb-2">
+                    {event.date}
+                  </p>
+                  <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
+                    {event.title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">
+                    {event.description}
+                  </p>
                   <Button asChild variant="outline">
-                    <a href={event.link}>Learn More</a>
+                    <a
+                      href={event.link}
+                      className="text-gray-900 dark:text-white"
+                    >
+                      Learn More
+                    </a>
                   </Button>
                 </div>
               </div>

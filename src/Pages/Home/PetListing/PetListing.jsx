@@ -53,7 +53,7 @@ const PetListing = () => {
         <input
           type="text"
           placeholder="Search pets by name..."
-          className="border rounded-lg px-4 py-2 flex-1 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="border rounded-lg px-4 py-2 flex-1 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -62,12 +62,23 @@ const PetListing = () => {
           value={categories.find((c) => c.value === category)}
           onChange={(option) => setCategory(option.value)}
           className="w-60"
+          classNamePrefix="react-select"
+          theme={(theme) => ({
+            ...theme,
+            colors: {
+              ...theme.colors,
+              primary25: "#d1fae5",
+              primary: "#10b981",
+            },
+          })}
         />
       </div>
 
       {/* Pet Grid */}
       {status === "loading" && (
-        <p className="text-center text-gray-500">Loading pets...</p>
+        <p className="text-center text-gray-500 dark:text-gray-300">
+          Loading pets...
+        </p>
       )}
       {status === "error" && (
         <p className="text-center text-red-500">Error fetching pets.</p>
@@ -77,7 +88,7 @@ const PetListing = () => {
         {allPets.map((pet) => (
           <div
             key={pet._id}
-            className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-transform transform hover:scale-105 hover:shadow-2xl"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden flex flex-col transition-transform transform hover:scale-105 hover:shadow-2xl"
           >
             <img
               src={`${pet.image}?w=400&h=300&fit=crop&auto=format,compress`}
@@ -89,22 +100,26 @@ const PetListing = () => {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               alt={pet.name}
               loading="lazy"
-              className="h-56 w-full object-cover bg-gray-100"
+              className="h-56 w-full object-cover bg-gray-100 dark:bg-gray-700"
             />
             <div className="p-4 flex flex-col flex-1">
-              <h3 className="text-xl font-semibold mb-1 text-gray-800">
+              <h3 className="text-xl font-semibold mb-1 text-gray-800 dark:text-gray-100">
                 {pet.name}
               </h3>
-              <p className="text-gray-600 mb-1">Age: {pet.age}</p>
-              <p className="text-gray-600 mb-2">Location: {pet.location}</p>
-              <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mb-2">
+              <p className="text-gray-600 dark:text-gray-300 mb-1">
+                Age: {pet.age}
+              </p>
+              <p className="text-gray-600 dark:text-gray-300 mb-2">
+                Location: {pet.location}
+              </p>
+              <span className="inline-block bg-emerald-100 text-emerald-800 dark:bg-emerald-700 dark:text-emerald-200 text-xs px-2 py-1 rounded-full mb-2">
                 {pet.category}
               </span>
-              <p className="text-gray-400 text-sm mb-4">
+              <p className="text-gray-400 dark:text-gray-400 text-sm mb-4">
                 Added on: {new Date(pet.createdAt).toLocaleDateString()}
               </p>
               <Link to={`/petDetails/${pet._id}`}>
-                <button className="mt-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-colors">
+                <button className="mt-auto bg-gradient-to-r from-emerald-500 to-green-500 text-white px-4 py-2 rounded-lg font-medium hover:from-emerald-600 hover:to-green-600 transition-colors">
                   View Details
                 </button>
               </Link>
@@ -117,13 +132,19 @@ const PetListing = () => {
       <div ref={ref} className="h-10"></div>
 
       {isFetchingNextPage && (
-        <p className="text-center mt-4 text-gray-500">Loading more pets...</p>
+        <p className="text-center mt-4 text-gray-500 dark:text-gray-300">
+          Loading more pets...
+        </p>
       )}
       {!hasNextPage && allPets.length > 0 && (
-        <p className="text-center mt-4 text-gray-500">No more pets.</p>
+        <p className="text-center mt-4 text-gray-500 dark:text-gray-300">
+          No more pets.
+        </p>
       )}
       {!isFetchingNextPage && allPets.length === 0 && (
-        <p className="text-center mt-4 text-gray-500">No pets found.</p>
+        <p className="text-center mt-4 text-gray-500 dark:text-gray-300">
+          No pets found.
+        </p>
       )}
     </div>
   );

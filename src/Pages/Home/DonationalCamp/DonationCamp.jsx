@@ -4,7 +4,7 @@ import useAxiosSecure from "../../../Hook/useAxiosSecure";
 import { useNavigate } from "react-router";
 
 const SkeletonCard = () => (
-  <div className="animate-pulse bg-gray-200 rounded-lg h-72"></div>
+  <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-72"></div>
 );
 
 const DonationCamp = () => {
@@ -56,19 +56,21 @@ const DonationCamp = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">
         Donation Campaigns
       </h1>
 
       {error && (
-        <p className="text-red-500 text-center mb-4 font-semibold">{error}</p>
+        <p className="text-red-500 dark:text-red-400 text-center mb-4 font-semibold">
+          {error}
+        </p>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {campaigns.map((camp, index) => (
           <div
             key={`${camp._id}-${index}`}
-            className="bg-white shadow rounded-lg overflow-hidden"
+            className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
           >
             <img
               src={camp.imageUrl}
@@ -77,11 +79,13 @@ const DonationCamp = () => {
               loading="lazy"
             />
             <div className="p-4">
-              <h2 className="text-xl font-semibold">{camp.petName}</h2>
-              <p className="mt-2">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                {camp.petName}
+              </h2>
+              <p className="mt-2 text-gray-700 dark:text-gray-300">
                 Max Donation: <strong>${camp.maxAmount}</strong>
               </p>
-              <p className="mt-1">
+              <p className="mt-1 text-gray-700 dark:text-gray-300">
                 Donated:{" "}
                 <strong>
                   $
@@ -92,7 +96,7 @@ const DonationCamp = () => {
               </p>
               <button
                 onClick={() => navigate(`/donation-details/${camp._id}`)}
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="mt-4 bg-emerald-500 hover:bg-emerald-700 text-white px-4 py-2 rounded transition"
               >
                 View Details
               </button>
@@ -108,7 +112,7 @@ const DonationCamp = () => {
       {/* Observer div for infinite scroll */}
       <div ref={ref} className="text-center my-6">
         {!hasMore && campaigns.length > 0 && (
-          <p className="text-gray-500">No more campaigns</p>
+          <p className="text-gray-500 dark:text-gray-400">No more campaigns</p>
         )}
       </div>
     </div>

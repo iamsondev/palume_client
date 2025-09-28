@@ -258,7 +258,7 @@ const PetForm = ({ initialValues, onSubmit, submitLabel }) => {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all ${
+          className={`w-full py-3 bg-gradient-to-r from-emerald-700 to-emerald-500 text-white font-semibold rounded-xl shadow-lg hover:from-emerald-800 hover:to-emerald-700 transition-all ${
             loading ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >

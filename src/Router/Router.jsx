@@ -20,6 +20,10 @@ import AdoptionRequest from "../Pages/Dashboard/AdoptionRequest";
 import PrivateRoute from "../Pages/Routes/PrivateRoute";
 import Forbidden from "../Pages/Home/Forbidden";
 import DonationDetailsWrapper from "../Pages/Home/DonationalCamp/DonationDetailsWrapper";
+import AdminUsers from "../Pages/Dashboard/Admin/AdminUsers";
+import AdminRoute from "../Pages/Routes/AdminRoute";
+import AllPets from "../Pages/Dashboard/Admin/AllPets";
+import AllDonations from "../Pages/Dashboard/Admin/AllDonations";
 
 export const router = createBrowserRouter([
   {
@@ -36,7 +40,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "petDetails/:id",
-        Component: PetDetails,
+        element: (
+          <PrivateRoute>
+            <PetDetails></PetDetails>
+          </PrivateRoute>
+        ),
       },
       {
         path: "donationCamp",
@@ -111,6 +119,31 @@ export const router = createBrowserRouter([
       {
         path: "adoption-requests",
         element: <AdoptionRequest></AdoptionRequest>,
+      },
+      // Admin routes
+      {
+        path: "admin",
+        element: (
+          <AdminRoute>
+            <AdminUsers></AdminUsers>
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "all-pets",
+        element: (
+          <AdminRoute>
+            <AllPets></AllPets>
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "all-donations",
+        element: (
+          <AdminRoute>
+            <AllDonations></AllDonations>
+          </AdminRoute>
+        ),
       },
     ],
   },

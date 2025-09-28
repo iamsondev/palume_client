@@ -1,9 +1,21 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../../Hook/useAxiosSecure";
+
+const SkeletonInput = () => (
+  <div className="h-10 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mb-4"></div>
+);
+
+const SkeletonTextarea = () => (
+  <div className="h-32 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mb-4"></div>
+);
+
+const SkeletonImage = () => (
+  <div className="w-48 h-48 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mb-4"></div>
+);
 
 const EditDonationCampaign = () => {
   const { id } = useParams();
@@ -12,7 +24,8 @@ const EditDonationCampaign = () => {
   const queryClient = useQueryClient();
 
   const [imageUrl, setImageUrl] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // For image upload
+  const [updating, setUpdating] = useState(false); // For form submission
 
   // Fetch single campaign
   const { data: campaign, isLoading } = useQuery({
@@ -53,7 +66,7 @@ const EditDonationCampaign = () => {
   };
 
   const formik = useFormik({
-    enableReinitialize: true, // auto-fill previous data
+    enableReinitialize: true,
     initialValues: {
       petName: campaign?.petName || "",
       maxAmount: campaign?.maxAmount || "",
@@ -72,6 +85,7 @@ const EditDonationCampaign = () => {
       return errors;
     },
     onSubmit: async (values) => {
+      setUpdating(true);
       try {
         const payload = {
           ...values,
@@ -89,11 +103,27 @@ const EditDonationCampaign = () => {
           err.response?.data?.message || "Server error",
           "error"
         );
+      } finally {
+        setUpdating(false);
       }
     },
   });
 
-  if (isLoading) return <p>Loading campaign...</p>;
+  if (isLoading)
+    return (
+      <div className="max-w-3xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">
+          Loading Campaign...
+        </h2>
+        <SkeletonInput />
+        <SkeletonImage />
+        <SkeletonInput />
+        <SkeletonInput />
+        <SkeletonInput />
+        <SkeletonTextarea />
+        <SkeletonTextarea />
+      </div>
+    );
 
   return (
     <div className="max-w-3xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
@@ -220,10 +250,13 @@ const EditDonationCampaign = () => {
         {/* Submit */}
         <button
           type="submit"
-          disabled={loading}
-          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          disabled={loading || updating}
+          className="w-full py-2 bg-emerald-600 text-white rounded hover:bg-blue-800 transition flex justify-center items-center"
         >
-          {loading ? "Uploading..." : "Update Campaign"}
+          {updating && (
+            <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5 mr-2"></span>
+          )}
+          {updating ? "Updating..." : "Update Campaign"}
         </button>
       </form>
     </div>
